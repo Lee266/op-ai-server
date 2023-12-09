@@ -18,7 +18,7 @@ jobs:
         run: gofmt -l -s -w *.go
 
       - name: Run goimports
-        run:  go get golang.org/x/tools/cmd/goimports@latest && goimports -w *.go
+        run:  go get golang.org/x/tools/cmd/goimports && goimports -w *.go
 
       - name: golangci-lint
         uses: reviewdog/action-golangci-lint@v2
