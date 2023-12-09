@@ -1,0 +1,57 @@
+name: static check
+on:
+  push:
+  pull_request:
+    paths:
+      - "**.go"
+      - .github/workflows/golangci.yml
+
+jobs:
+  golangci-lint:
+    name: golangci-lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v3
+
+      - name: Run gofmt
+        run: gofmt -l -s -w *.go
+
+      - name: Run goimports
+        run:  goimports -w *.go
+
+      - name: golangci-lint
+        uses: reviewdog/action-golangci-lint@v2
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          golangci_lint_flags: "--config=./.golangci.yml ./..."
+          fail_on_error: true
+          reporter: "github-pr-review"
+
+      - name: Slack Notification on Failure
+        id: slack
+        uses: slackapi/slack-github-action@v1.24.0
+        if: ${{ failure() }}
+        with:
+          payload: |
+            {
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "リポジトリ: ${{ github.repository }}"
+                  }
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "デプロイ失敗しました😢\n result: ${{ job.status }}\n ${{ github.workflow }}: ${{ github.event.pull_request.html_url || github.event.head_commit.url }}"
+                  }
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
