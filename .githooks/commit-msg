@@ -1,0 +1,38 @@
+#!/bin/bash
+
+# 色の変数を定義
+readonly RED='\e[1;31m'
+readonly GREEN='\e[1;32m'
+readonly RESET='\e[0m'
+
+echo " - コミットメッセージチェック: "
+MSG="$(cat "$1")"
+echo "Your commit message: $MSG"
+
+if [ ! "$MSG" ]; then
+  echo -e "${RED}[FAILED]${RESET} コミットメッセージが見つかりません。"
+  exit 1
+fi
+
+# CU- で始まる場合は正常終了
+if [[ "$MSG" == CU-* ]]; then
+  echo -e "${GREEN}[SUCCESS]${RESET} CU- チケットと連携するコミットメッセージです。"
+  exit 0
+fi
+
+commit_msg_prefix=$(echo "$MSG" | head -n 1 | cut -d' ' -f1 | sed 's/\[[^]]*\]//')
+
+readonly CORRECT_PREFIXES=("feat" "fix" "docs" "style" "refactor" "pref" "test" "chore" "ci" "build" "revert")
+## 各要素に": "を追加
+for i in "${!CORRECT_PREFIXES[@]}"; do
+  correct_prefixes[i]="${CORRECT_PREFIXES[i]}: "
+done
+
+# 正しいPrefixが使われているかどうかを確認
+if [[ ! " ${correct_prefixes[@]} " =~ " $commit_msg_prefix " ]]; then
+  echo -e "${RED}[FAILED]${RESET} 正しいPrefixが使われていません。有効なPrefix: ${correct_prefixes[@]}"
+  exit 1
+else
+  echo -e "${GREEN}[SUCCESS]${RESET} 正しいPrefixが使われています。"
+  exit 0
+fi
