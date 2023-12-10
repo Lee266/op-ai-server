@@ -15,9 +15,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: set up go
-        uses: actions/setup-go@v4
-        env:
-          GO111MODULE: on
+        run: go mod download
 
       - name: Confirm GO
         run: go env && pwd
@@ -27,9 +25,16 @@ jobs:
 
       - name: Install goimports
         run:  go install golang.org/x/tools/cmd/goimports@latest
+        env:
+          GO111MODULE: on
+
+      - name: Check contents of $HOME/go/bin
+        run: ls -l $HOME/go/bin
 
       - name: Check goimports installation directory
-        run: echo $GOPATH
+        run: GOPATH
+        env:
+          PATH: ${{ runner.tool_cache }}/go/1.21.3/x64/bin:${{ env.PATH }}
 
       - name: Check goimports version2
         run: goimports version
