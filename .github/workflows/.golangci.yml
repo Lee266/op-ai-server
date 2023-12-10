@@ -1,6 +1,8 @@
 name: static check
 on:
   push:
+    paths:
+      - "**.go"
   pull_request:
     paths:
       - "**.go"
@@ -26,7 +28,7 @@ jobs:
         run: go env && pwd
 
       - name: Run gofmt
-        run: gofmt -l -s -w *.go
+        run: gofmt -l -s -w .
 
       - name: Install goimports
         run:  go install golang.org/x/tools/cmd/goimports@latest
@@ -34,7 +36,7 @@ jobs:
           GO111MODULE: on
 
       - name: Run goimports
-        run: goimports -w *.go
+        run: goimports -w .
 
       - name: golangci-lint
         uses: reviewdog/action-golangci-lint@v2
