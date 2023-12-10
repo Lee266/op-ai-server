@@ -14,6 +14,8 @@ jobs:
       - name: Check out code into the Go module directory
         uses: actions/checkout@v3
 
+      - name: Confirm GO
+        run: go env && pwd
       - name: Run gofmt
         run: gofmt -l -s -w *.go
 
@@ -22,8 +24,14 @@ jobs:
         env:
           GO111MODULE: on
 
+      - name: Check goimports version
+        run: goimports version
+        env:
+          PATH: ${{ runner.tool_cache }}/go/1.21.3/x64/bin:${{ env.PATH }}
+
       - name: Run goimports
         run: goimports -w *.go
+
 
       - name: golangci-lint
         uses: reviewdog/action-golangci-lint@v2
