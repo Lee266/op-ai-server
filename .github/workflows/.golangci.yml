@@ -14,6 +14,11 @@ jobs:
       - name: Check out code into the Go module directory
         uses: actions/checkout@v3
 
+      - name: Setup Go 1.21.x
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.21.x'
+
       - name: set up go
         run: go mod download
 
