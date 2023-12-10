@@ -33,9 +33,6 @@ jobs:
         env:
           GO111MODULE: on
 
-      - name: Check contents of $HOME/go/bin
-        run: ls -l $HOME/go/bin
-
       - name: Run goimports
         run: goimports -w *.go
 
