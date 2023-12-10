@@ -31,6 +31,7 @@ done
 # 正しいPrefixが使われているかどうかを確認
 if [[ ! " ${correct_prefixes[@]} " =~ " $commit_msg_prefix " ]]; then
   echo -e "${RED}[FAILED]${RESET} 正しいPrefixが使われていません。有効なPrefix: ${correct_prefixes[@]}"
+  echo -e "prefix[option]: messageが正しいformatです。"
   exit 1
 else
   echo -e "${GREEN}[SUCCESS]${RESET} 正しいPrefixが使われています。"
