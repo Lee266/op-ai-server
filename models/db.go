@@ -78,8 +78,6 @@ func (env *DbEnv) InitDB() error {
 
 // Connect はデータベースに接続します。
 func (env *DbEnv) Connect() (*gorm.DB, error) {
-  log.Printf("Current DSN:%v", env.Dsn)
-
 	if env.Dsn == "" {
 		return nil, errors.New("database DSN is empty. Call InitDB first")
 	}

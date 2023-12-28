@@ -21,7 +21,6 @@ type DbInitCase struct {
 }
 
 func TestDbInit(t *testing.T) {
-
 	cases := []DbInitCase{
 		{
 			Case:     "No Error",
