@@ -1,44 +1,33 @@
 package main
 
 import (
-	"context"
-	"fmt"
 	"log"
-	"net/http"
+	"os"
 
-	"golang.org/x/sync/errgroup"
+	db "github.com/Lee266/op-ai-server/models"
+	"github.com/Lee266/op-ai-server/router"
 )
 
-func main() {
-	if err := run(context.Background()); err != nil {
-		log.Printf("failed to terminate server: %v", err)
-	}
-}
+const PORT = ":8002"
 
-func run(ctx context.Context) error {
-	s := &http.Server{
-		Addr: ":8002",
-		Handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			fmt.Fprintf(w, "Hello, %s!", r.URL.Path[1:])
-		}),
+func main() {
+	dbEnv := db.DbEnv{
+		Host:     os.Getenv("DATABASE_HOST"),
+		User:     os.Getenv("DATABASE_USER"),
+		Pass:     os.Getenv("DATABASE_PASSWORD"),
+		DB:       os.Getenv("DATABASE_DB"),
+		Port:     os.Getenv("HOST_MACHINE_DATABASE_PORT"),
+		SslMode:  os.Getenv("SSL_MODE"),
+		TimeZone: os.Getenv("TIME_ZONE"),
 	}
-	eg, ctx := errgroup.WithContext(ctx)
-	// 別ゴルーチンでHTTPサーバーを起動する
-	eg.Go(func() error {
-		// http.ErrServerClosed は
-		// http.Server.Shutdown() が正常に終了したことを示すので異常ではない。
-		if err := s.ListenAndServe(); err != nil &&
-			err != http.ErrServerClosed {
-			log.Printf("failed to close: %+v", err)
-			return err
-		}
-		return nil
-	})
-	// チャネルからの通知（終了通知）を待機する
-	<-ctx.Done()
-	if err := s.Shutdown(context.Background()); err != nil {
-		log.Printf("failed to shutdown: %+v", err)
+	if err := dbEnv.InitDB(); err != nil {
+		log.Fatalf("Failed to initialize database: %v", err)
 	}
-	// Goメソッドで起動した別ゴルーチンの終了を待つ。
-	return eg.Wait()
+	_, err := dbEnv.Connect()
+	if err != nil {
+		log.Fatalf("Failed to connect to the database: %v", err)
+	}
+	if err := router.Router().Run(PORT); err != nil {
+		log.Fatalf("Failed to start server: %v", err)
+	}
 }
