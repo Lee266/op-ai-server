@@ -16,4 +16,4 @@ lint: ## コード整形と解析ツールを実行する.
 	goimports -l -w *.go
 	golangci-lint run --config=./.golangci.yml -v
 
-finalCheck: tidy lint ## コミット前に必ず行う
+finalCheck: tidy lint test ## コミット前に必ず行う
